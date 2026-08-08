@@ -7,7 +7,7 @@
  */
 #include <psp2kern/types.h>
 #include <psp2kern/ctrl.h>
-#include <psp2kern/sblaimgr.h>
+#include <psp2kern/kernel/aimgr.h>
 #include <psp2kern/io/stat.h>
 #include <psp2kern/kernel/modulemgr.h>
 #include <psp2kern/kernel/threadmgr.h>

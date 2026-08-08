@@ -9,6 +9,7 @@
 #include <psp2kern/kernel/cpu.h>
 #include <psp2kern/kernel/modulemgr.h>
 #include <psp2kern/kernel/sysmem.h>
+#include <psp2kern/kernel/sysroot.h>
 #include <string.h>
 #include "error.h"
 #include "taihen_internal.h"
@@ -171,8 +172,8 @@ static int sce_to_tai_module_info(SceUID pid, void *sceinfo, tai_module_info_t *
  * @return     0 if not found or the offset to the needle
  */
 static int find_int_for_user(SceUID pid, uintptr_t src, uint32_t needle, size_t size) {
-  int my_context[3];
-  int *other_context;
+  SceKernelProcessContext my_context;
+  SceKernelProcessContext *other_context;
   int flags;
   uintptr_t end;
   uint32_t data;
@@ -186,8 +187,8 @@ static int find_int_for_user(SceUID pid, uintptr_t src, uint32_t needle, size_t 
     return 0;
   }
   size = end-src;
-  flags = ksceKernelCpuDisableInterrupts();
-  ksceKernelCpuSaveContext(my_context);
+  flags = ksceKernelCpuSuspendIntr();
+  ksceKernelCpuSaveContext(&my_context);
   ret = ksceKernelGetPidContext(pid, &other_context);
   if (ret >= 0) {
     ksceKernelCpuRestoreContext(other_context);
@@ -199,8 +200,8 @@ static int find_int_for_user(SceUID pid, uintptr_t src, uint32_t needle, size_t 
       count += 4;
     }
   }
-  ksceKernelCpuRestoreContext(my_context);
-  ksceKernelCpuEnableInterrupts(flags);
+  ksceKernelCpuRestoreContext(&my_context);
+  ksceKernelCpuResumeIntr(flags);
   if (ret < 0) {
     LOG("Error trying to get context for %x", pid);
     count = ret;
@@ -346,7 +347,7 @@ int module_get_export_func(SceUID pid, const char *modname, uint32_t libnid, uin
     if (pid == KERNEL_PID) {
       export = (sce_module_exports_t *)cur;
     } else {
-      if ((ret = ksceKernelMemcpyUserToKernelForPid(pid, &local, cur, sizeof(local))) < 0) {
+      if ((ret = ksceKernelMemcpyUserToKernelForPid(pid, &local, (void*)cur, sizeof(local))) < 0) {
         LOG("Error trying to read address %p for %x: %x", cur, pid, ret);
         return ret;
       }
@@ -365,7 +366,7 @@ int module_get_export_func(SceUID pid, const char *modname, uint32_t libnid, uin
       } else {
         found = find_int_for_user(pid, (uintptr_t)export->nid_table, funcnid, export->num_functions * 4);
         if (found >= 0) {
-          if ((ret = ksceKernelMemcpyUserToKernelForPid(pid, func, (uintptr_t)export->entry_table + found, 4)) < 0) {
+          if ((ret = ksceKernelMemcpyUserToKernelForPid(pid, func, (unsigned char*)export->entry_table + found, 4)) < 0) {
             LOG("Error trying to read address %p for %x: %x", (uintptr_t)export->entry_table + found, pid, ret);
             return ret;
           }
@@ -412,12 +413,12 @@ int module_get_import_func(SceUID pid, const char *modname, uint32_t target_libn
     if (pid == KERNEL_PID) {
       import = (sce_module_imports_t *)cur;
     } else {
-      if ((ret = ksceKernelMemcpyUserToKernelForPid(pid, &local.size, cur, sizeof(local.size))) < 0) {
+      if ((ret = ksceKernelMemcpyUserToKernelForPid(pid, &local.size, (void*)cur, sizeof(local.size))) < 0) {
         LOG("Error trying to read address %p for %x: %x", cur, pid, ret);
         return ret;
       }
       if (local.size <= sizeof(local)) {
-        if ((ret = ksceKernelMemcpyUserToKernelForPid(pid, &local, cur, local.size)) < 0) {
+        if ((ret = ksceKernelMemcpyUserToKernelForPid(pid, &local, (void*)cur, local.size)) < 0) {
           LOG("Error trying to read address %p for %x: %x", cur, pid, ret);
           return ret;
         }
@@ -439,7 +440,7 @@ int module_get_import_func(SceUID pid, const char *modname, uint32_t target_libn
         } else {
           found = find_int_for_user(pid, (uintptr_t)import->type1.func_nid_table, funcnid, import->type1.num_functions * 4);
           if (found >= 0) {
-            if ((ret = ksceKernelMemcpyUserToKernelForPid(pid, stub, (uintptr_t)import->type1.func_entry_table + found, 4)) < 0) {
+            if ((ret = ksceKernelMemcpyUserToKernelForPid(pid, stub, (unsigned char*)import->type1.func_entry_table + found, 4)) < 0) {
               LOG("Error trying to read address %p for %x: %x", (uintptr_t)import->type1.func_entry_table + found, pid, ret);
               return ret;
             }
@@ -461,7 +462,7 @@ int module_get_import_func(SceUID pid, const char *modname, uint32_t target_libn
         } else {
           found = find_int_for_user(pid, (uintptr_t)import->type2.func_nid_table, funcnid, import->type2.num_functions * 4);
           if (found >= 0) {
-            if ((ret = ksceKernelMemcpyUserToKernelForPid(pid, stub, (uintptr_t)import->type2.func_entry_table + found, 4)) < 0) {
+            if ((ret = ksceKernelMemcpyUserToKernelForPid(pid, stub, (unsigned char*)import->type2.func_entry_table + found, 4)) < 0) {
               LOG("Error trying to read address %p for %x: %x", (uintptr_t)import->type2.func_entry_table + found, pid, ret);
               return ret;
             }

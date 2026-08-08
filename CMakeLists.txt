@@ -33,6 +33,7 @@ add_definitions(-DNO_PTHREADS)
 if (ENABLE_LOGGING)
   add_definitions(-DENABLE_LOGGING)
   add_definitions(-DTRANSFORM_DIS_VERBOSE)
+  add_definitions(-Dprintf=ksceKernelPrintf) # Needed for substitute.
 endif(ENABLE_LOGGING)
 
 add_subdirectory(taihen-parser)
@@ -59,13 +60,13 @@ target_link_libraries(taihen
   taihenparser
   gcc
   SceSysmemForDriver_stub
-  SceSysmemForKernel_367_stub
+  SceSysmemForKernel_363_stub
   SceSysclibForDriver_stub
-  SceCpuForKernel_367_stub
+  SceCpuForKernel_363_stub
   SceCpuForDriver_stub
   SceSysrootForKernel_stub
   SceThreadmgrForDriver_stub
-  SceModulemgrForKernel_367_stub
+  SceModulemgrForKernel_363_stub
   SceModulemgrForDriver_stub
   SceIofilemgrForDriver_stub
   SceSblACMgrForDriver_stub

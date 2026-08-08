@@ -169,8 +169,8 @@ void cache_flush(SceUID pid, uintptr_t vma, size_t len) {
   fprintf(stderr, "called flush for pid %x, vma %lx, len %zx\n", pid, vma, len);
 }
 
-int ksceKernelCpuUnrestrictedMemcpy(void *dst, const void *src, size_t len) {
-  fprintf(stderr, "ksceKernelCpuUnrestrictedMemcpy(%p, %p, %zx)\n", dst, src, len);
+int ksceKernelDomainTextMemcpy(void *dst, const void *src, size_t len) {
+  fprintf(stderr, "ksceKernelDomainTextMemcpy(%p, %p, %zx)\n", dst, src, len);
   memcpy(dst, src, len);
   return 0;
 }

@@ -9,6 +9,7 @@
 #include <psp2kern/types.h>
 #include <psp2kern/io/stat.h>
 #include <psp2kern/kernel/sysmem.h>
+#include <psp2kern/kernel/sysroot.h>
 #include <string.h>
 #include "error.h"
 #include "hen.h"
@@ -20,7 +21,7 @@
 #define MAX_SEGMENTS 8
 
 /** Should be same on all current firmware, but this may change. */
-#define OFFSET_PATCH_ARG 168
+#define OFFSET_PATCH_ARG 0xA8
 
 /*
  *  S/ELF header

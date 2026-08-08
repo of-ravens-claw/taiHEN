@@ -5,8 +5,8 @@
 #define TAI_INTERNAL_HEADER
 
 #include <psp2kern/types.h>
+#include <psp2kern/kernel/debug.h>
 #include <inttypes.h>
-#include <stdio.h>
 #include "taihen.h"
 #include "slab.h"
 
@@ -15,7 +15,7 @@ extern unsigned char log_ctr;
 
 /** Logging function */
 #ifdef ENABLE_LOGGING
-#define LOG(fmt, ...) printf("%02X [%s:%d] " fmt "\n", log_ctr++, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+#define LOG(fmt, ...) ksceKernelPrintf("%02X [%s:%d] " fmt "\n", log_ctr++, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 #else
 #define LOG(fmt, ...)
 #endif
