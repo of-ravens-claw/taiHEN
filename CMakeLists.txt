@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.5)
 
 if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
   if(DEFINED ENV{VITASDK})
@@ -60,13 +60,14 @@ target_link_libraries(taihen
   taihenparser
   gcc
   SceSysmemForDriver_stub
-  SceSysmemForKernel_363_stub
+  SceSysmemForKernel_stub
   SceSysclibForDriver_stub
-  SceCpuForKernel_363_stub
+  SceCpuForKernel_stub
   SceCpuForDriver_stub
+  SceSysrootForDriver_stub
   SceSysrootForKernel_stub
   SceThreadmgrForDriver_stub
-  SceModulemgrForKernel_363_stub
+  SceModulemgrForKernel_stub
   SceModulemgrForDriver_stub
   SceIofilemgrForDriver_stub
   SceSblACMgrForDriver_stub

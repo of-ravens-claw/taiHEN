@@ -91,9 +91,6 @@ typedef struct sce_module_info {
 
 #define MOD_LIST_SIZE (256)
 
-/** The currently running FW version. */
-static uint32_t fw_version = 0;
-
 /**
  * @brief      Converts internal SCE structure to a usable form
  *
@@ -106,18 +103,16 @@ static uint32_t fw_version = 0;
  *
  * @return     Zero on success, < 0 on error
  */
-static int sce_to_tai_module_info(SceUID pid, void *sceinfo, tai_module_info_t *taiinfo) {
-  SceKernelFwInfo fwinfo;
-  char *info;
+static int sce_to_tai_module_info(SceUID pid, void *sceinfo, tai_module_info_t *taiinfo)
+{
+  /** The currently running FW version. */
+  static uint32_t fw_version = 0;
 
   if (fw_version == 0) {
-    fwinfo.size = sizeof(fwinfo);
-    if (ksceKernelGetSystemSwVersion(&fwinfo) < 0) {
+    fw_version = ksceKernelSysrootGetSystemSwVersion();
+    if (fw_version < 0)
       fw_version = DEFAULT_FW_VERSION;
-    } else {
-      fw_version = fwinfo.version;
-    }
-    LOG("ksceKernelGetSystemSwVersion: 0x%08X", fw_version);
+    LOG("ksceKernelSysrootGetSystemSwVersion: 0x%08X", fw_version);
   }
 
   if (taiinfo->size < sizeof(tai_module_info_t)) {
@@ -125,33 +120,37 @@ static int sce_to_tai_module_info(SceUID pid, void *sceinfo, tai_module_info_t *
     return TAI_ERROR_SYSTEM;
   }
 
-  info = (char *)sceinfo;
-  if (fw_version >= 0x3600000) {
+  unsigned char *info = (unsigned char *)sceinfo;
+  if (fw_version >= 0x03500000) {
     if (pid == KERNEL_PID) {
       taiinfo->modid = *(SceUID *)(info + 0xC);
     } else {
       taiinfo->modid = *(SceUID *)(info + 0x10);
     }
+
     snprintf(taiinfo->name, 27, "%s", *(const char **)(info + 0x1C));
     taiinfo->name[26] = '\0';
-    taiinfo->module_nid = *(uint32_t *)(info + 0x30);
+
+    taiinfo->module_nid    = *(uint32_t *)(info + 0x30);
     taiinfo->exports_start = *(uintptr_t *)(info + 0x20);
-    taiinfo->exports_end = *(uintptr_t *)(info + 0x24);
+    taiinfo->exports_end   = *(uintptr_t *)(info + 0x24);
     taiinfo->imports_start = *(uintptr_t *)(info + 0x28);
-    taiinfo->imports_end = *(uintptr_t *)(info + 0x2C);
-  } else if (fw_version >= 0x1692000) {
+    taiinfo->imports_end   = *(uintptr_t *)(info + 0x2C);
+  } else if (fw_version >= 0x01692000) {
     if (pid == KERNEL_PID) {
       taiinfo->modid = *(SceUID *)(info + 0x0);
     } else {
       taiinfo->modid = *(SceUID *)(info + 0x4);
     }
-    taiinfo->module_nid = *(uint32_t *)(info + 0x3C);
+
     snprintf(taiinfo->name, 27, "%s", (const char *)(info + 0xC));
     taiinfo->name[26] = '\0';
+
+    taiinfo->module_nid    = *(uint32_t *)(info + 0x3C);
     taiinfo->exports_start = *(uintptr_t *)(info + 0x2C);
-    taiinfo->exports_end = *(uintptr_t *)(info + 0x30);
+    taiinfo->exports_end   = *(uintptr_t *)(info + 0x30);
     taiinfo->imports_start = *(uintptr_t *)(info + 0x34);
-    taiinfo->imports_end = *(uintptr_t *)(info + 0x38);
+    taiinfo->imports_end   = *(uintptr_t *)(info + 0x38);
   } else {
     LOG("Unsupported FW 0x%08X", fw_version);
     return TAI_ERROR_SYSTEM;

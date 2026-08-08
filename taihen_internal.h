@@ -27,7 +27,7 @@ extern unsigned char log_ctr;
 #define SHARED_PID 0x80000000
 
 /** Fallback if the current running fw version cannot be detected. */
-#define DEFAULT_FW_VERSION 0x3600000
+#define DEFAULT_FW_VERSION 0x03600000
 
 /**
  * @addtogroup patches
