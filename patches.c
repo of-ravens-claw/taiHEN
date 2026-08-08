@@ -145,7 +145,7 @@ static inline void hex_dump(uintptr_t paddr, const char *addr, unsigned int size
     unsigned int i;
     for (i = 0; i < (size >> 4); i++)
     {
-        LOG("0x%08X: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n", 
+        LOG("0x%08X: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", 
             paddr, 
             addr[0], addr[1], addr[2], addr[3], addr[4], addr[5], addr[6], addr[7], addr[8], 
             addr[9], addr[10], addr[11], addr[12], addr[13], addr[14], addr[15]
@@ -199,7 +199,7 @@ void cache_flush(SceUID pid, uintptr_t vma, size_t len) {
     }
     ksceKernelCpuRestoreContext(&my_context);
     ksceKernelCpuResumeIntr(flags);
-    LOG("sceKernelSwitchVmaForPid(%d): 0x%08X\n", pid, ret);
+    LOG("sceKernelSwitchVmaForPid(%d): 0x%08X", pid, ret);
   }
   asm volatile ("isb" ::: "memory");
 }
