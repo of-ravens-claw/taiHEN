@@ -384,12 +384,3 @@ int module_stop(SceSize argc, const void *args) {
   proc_map_deinit();
   return SCE_KERNEL_STOP_SUCCESS;
 }
-
-/**
- * @brief      Module Exit handler (unused)
- *
- *             This function is currently unused on retail units.
- */
-void module_exit(void) {
-
-}
