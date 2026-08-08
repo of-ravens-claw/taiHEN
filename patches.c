@@ -140,7 +140,7 @@ void patches_deinit(void) {
  * @param[in]  addr   The address
  * @param[in]  size   The size to dump
  */
-static inline void hex_dump(uintptr_t paddr, const char *addr, unsigned int size)
+static inline void hex_dump(uintptr_t paddr, const unsigned char *addr, unsigned int size)
 {
     unsigned int i;
     for (i = 0; i < (size >> 4); i++)
@@ -182,7 +182,7 @@ void cache_flush(SceUID pid, uintptr_t vma, size_t len) {
   if (pid == KERNEL_PID) {
     ksceKernelL1DcacheCleanInvalidateRange((void *)vma_align, len);
     ksceKernelIcacheInvalidateRange((void *)vma_align, len);
-    hex_dump(vma_align, (char *)vma_align, len);
+    hex_dump(vma_align, (unsigned char *)vma_align, len);
   } else {
     // TODO: Take care of SHARED_PID
     flags = ksceKernelCpuSuspendIntr();
@@ -194,7 +194,7 @@ void cache_flush(SceUID pid, uintptr_t vma, size_t len) {
       asm volatile ("mcr p15, 0, %0, c3, c0, 0" :: "r" (0x15450FC3));
       ksceKernelL1DcacheCleanInvalidateRange((void *)vma_align, len);
       ksceKernelIcacheInvalidateRange((void *)vma_align, len);
-      hex_dump(vma_align, (char *)vma_align, len);
+      hex_dump(vma_align, (unsigned char *)vma_align, len);
       asm volatile ("mcr p15, 0, %0, c3, c0, 0" :: "r" (dacr));
     }
     ksceKernelCpuRestoreContext(&my_context);
