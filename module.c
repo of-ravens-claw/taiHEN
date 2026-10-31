@@ -121,7 +121,7 @@ static int sce_to_tai_module_info(SceUID pid, void *sceinfo, tai_module_info_t *
   }
 
   unsigned char *info = (unsigned char *)sceinfo;
-  if (fw_version >= 0x03500000) {
+  if (fw_version >= 0x03100000) {
     if (pid == KERNEL_PID) {
       taiinfo->modid = *(SceUID *)(info + 0xC);
     } else {
