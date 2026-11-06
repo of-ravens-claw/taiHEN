@@ -3,4 +3,4 @@
 	url = https://github.com/of-ravens-claw/substitute.git
 [submodule "taihen-parser"]
 	path = taihen-parser
-	url = https://github.com/DaveeFTW/taihen-parser.git
+	url = https://github.com/of-ravens-claw/taihen-parser.git
